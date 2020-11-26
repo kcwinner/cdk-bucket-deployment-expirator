@@ -81,8 +81,8 @@ test('Prune Function Mock', async () => {
     ResourceProperties: {
       SourceBucketName: 'test-bucket',
       MetaLookupKey: 'x-amz-meta-x-amzn-meta-deployed',
-      DeploymentsToKeep: 2,
-      RemoveUnmarked: true,
+      DeploymentsToKeep: 1,
+      RemoveUnmarked: false,
     },
   };
 

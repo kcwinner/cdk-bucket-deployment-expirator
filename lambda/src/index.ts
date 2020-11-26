@@ -1,13 +1,11 @@
-const AWS = require('aws-sdk');
+import * as AWS from 'aws-sdk';
+import * as https from 'https';
 
 const CFN_SUCCESS = 'SUCCESS';
 const CFN_FAILED = 'FAILED';
 
-let metaLookupKey = 'x-amz-meta-x-amzn-meta-deployed';
-
 export async function handler(event: any, context: any) {
   const s3 = new AWS.S3(); // Needs to be initialized here to use aws-sdk-mock
-
   console.info(event);
 
   const cfnError = async (message: string = '') => {
@@ -29,7 +27,7 @@ export async function handler(event: any, context: any) {
     const physicalId = event.PhysicalResourceId ?? undefined;
 
     const sourceBucketName = props.SourceBucketName;
-    metaLookupKey = props.MetaLookupKey ?? metaLookupKey;
+    const metaLookupKey = props.MetaLookupKey;
     const deploymentsToKeep = props.DeploymentsToKeep;
     const removeUnmarked = props.RemoveUnmarked;
 
@@ -42,25 +40,30 @@ export async function handler(event: any, context: any) {
     const deployments: { [key: string]: string[] } = {};
 
     const listObjectsParams = {
-        Bucket: sourceBucketName
+      Bucket: sourceBucketName
     }
 
     // TODO: Check for IsTruncated
-    const { Contents } = await s3.listObjectsV2(listObjectsParams).promise();
+    const listObjectsResult = await s3.listObjectsV2(listObjectsParams).promise();
+    const contents = listObjectsResult.Contents ?? [];
 
-    for (const file of Contents) {
-        const headParams = {
-            Bucket: sourceBucketName,
-            Key: file.Key
-        }
+    for (const file of contents) {
+      if (!file.Key) continue;
 
-        // Run a head object to get S3 object metadata
-        const { Metadata } = await s3.headObject(headParams).promise();
-        const deploymentKey = Metadata[metaLookupKey] || 'unmarked';
-        if (deploymentKey === 'unmarked' && !removeUnmarked) continue;
-        if (!deployments[deploymentKey]) deployments[deploymentKey] = [];
+      const headParams = {
+        Bucket: sourceBucketName,
+        Key: file.Key
+      }
 
-        deployments[deploymentKey].push(file.Key);
+      // Run a head object to get S3 object metadata
+      const headObjectResult = await s3.headObject(headParams).promise();
+      const metadata = headObjectResult.Metadata ?? {}
+
+      const deploymentKey = metadata[metaLookupKey] || 'unmarked';
+      if (deploymentKey === 'unmarked' && !removeUnmarked) continue;
+      if (!deployments[deploymentKey]) deployments[deploymentKey] = [];
+
+      deployments[deploymentKey].push(file.Key);
     }
 
     console.info('Deployments:', deployments);
@@ -72,10 +75,9 @@ export async function handler(event: any, context: any) {
     // Slice starting at the index to remove since we reverse sorted
     const deploymentsToRemove = deploymentTimestamps.slice(deploymentsToKeep);
     for (const deployment of deploymentsToRemove) {
-        const filesToRemove = deployments[deployment];
-        console.info('Removing:', filesToRemove);
+      const filesToRemove = deployments[deployment];
+      console.info('Removing:', filesToRemove);
     }
-
 
     await cfnSend({ event, context, responseStatus: CFN_SUCCESS, physicalResourceId: physicalId });
   } catch (err) {
@@ -97,8 +99,6 @@ async function cfnSend(options: CfnSendOptions) {
   const { event, context } = options;
 
   const responseUrl = event.ResponseURL;
-  console.info(responseUrl);
-
   const responseBody = {
     Status: options.responseStatus,
     Reason: options.reason ?? `See the details in CloudWatch Log Stream: ${context.logStreamName}`,
@@ -111,41 +111,44 @@ async function cfnSend(options: CfnSendOptions) {
   };
 
   const body = JSON.stringify(responseBody);
-  const headers = {
-    'content-type': '',
-    'content-length': body.length.toString()
+  const putOptions: https.RequestOptions = {
+    port: 443,
+    method: 'PUT',
+    headers: {
+      'Content-Type': '',
+      'Content-Length': body.length
+    }
   }
 
-  console.log(headers);
+  try {
+    const response = await putAsync(responseUrl, putOptions, body);
+    console.info("| status code: " + response)
+  } catch (err) {
+    console.error('| unable to send response to CloudFormation');
+    console.error(err);
+  }
+
 }
 
-// # sends a response to cloudformation
-// def cfn_send(event, context, responseStatus, responseData = {}, physicalResourceId = None, noEcho = False, reason = None):
+async function putAsync(url: string, options: https.RequestOptions, body: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const request = https.request(url, options, (resp) => {
+      let data = '';
+  
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+  
+      resp.on('end', () => {
+        resolve(data);
+      });
 
-// responseUrl = event['ResponseURL']
-// logger.info(responseUrl)
-
-// responseBody = {}
-// responseBody['Status'] = responseStatus
-// responseBody['Reason'] = reason or('See the details in CloudWatch Log Stream: ' + context.log_stream_name)
-// responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
-// responseBody['StackId'] = event['StackId']
-// responseBody['RequestId'] = event['RequestId']
-// responseBody['LogicalResourceId'] = event['LogicalResourceId']
-// responseBody['NoEcho'] = noEcho
-// responseBody['Data'] = responseData
-
-// body = json.dumps(responseBody)
-// logger.info("| response body:\n" + body)
-
-// headers = {
-//   'content-type': '',
-//   'content-length': str(len(body))
-// }
-
-// try:
-// response = requests.put(responseUrl, data = body, headers = headers)
-// logger.info("| status code: " + response.reason)
-// except Exception as e:
-// logger.error("| unable to send response to CloudFormation")
-// logger.exception(e)
+      resp.on('error', (err) => {
+        reject(err);
+      })
+    });
+  
+    request.write(body);
+    request.end();
+  })
+}

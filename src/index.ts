@@ -68,7 +68,7 @@ export class BucketDeploymentExpirator extends Construct {
       resourceType: 'Custom::CDKBucketDeploymentExpirator',
       properties: {
         SourceBucketName: props.sourceBucket.bucketName,
-        MetaLookupKey: props.metaLookupKey,
+        MetaLookupKey: props.metaLookupKey ?? 'x-amz-meta-x-amzn-meta-deployed',
         DeploymentsToKeep: props.deploymentsToKeep ?? 3,
         RemoveUnmarked: props.removeUnmarked ?? false,
       },
