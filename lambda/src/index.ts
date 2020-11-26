@@ -54,13 +54,13 @@ export async function handler(event: any, context: any) {
             Key: file.Key
         }
 
+        // Run a head object to get S3 object metadata
         const { Metadata } = await s3.headObject(headParams).promise();
-        const deployed = Metadata[metaLookupKey];
-        if (!deployed) continue;
+        const deploymentKey = Metadata[metaLookupKey] || 'unmarked';
+        if (deploymentKey === 'unmarked' && !removeUnmarked) continue;
+        if (!deployments[deploymentKey]) deployments[deploymentKey] = [];
 
-        if (!deployments[deployed]) deployments[deployed] = [];
-
-        deployments[deployed].push(file.Key);
+        deployments[deploymentKey].push(file.Key);
     }
 
     console.info('Deployments:', deployments);
@@ -117,7 +117,6 @@ async function cfnSend(options: CfnSendOptions) {
   }
 
   console.log(headers);
-
 }
 
 // # sends a response to cloudformation

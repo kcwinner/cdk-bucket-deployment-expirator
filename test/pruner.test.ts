@@ -6,6 +6,11 @@ import * as AWSMock from 'aws-sdk-mock';
 import { handler } from '../lambda/src';
 import { BucketDeploymentExpirator } from '../src';
 
+const mockDeploymentMetadata = [
+  { 'x-amz-meta-x-amzn-meta-deployed': '1606366699507' },
+  { 'x-amz-meta-x-amzn-meta-deployed': '1606366252586' },
+  {},
+];
 
 AWSMock.setSDKInstance(AWS);
 AWSMock.mock('S3', 'listObjectsV2', {
@@ -38,11 +43,7 @@ AWSMock.mock('S3', 'listObjectsV2', {
 });
 
 AWSMock.mock('S3', 'headObject', (_: any, callback: any) => {
-  // TODO: Build meta object
-  const metaObject = {
-    'x-amz-meta-x-amzn-meta-deployed': '1606366252586',
-  };
-
+  const metaObject = mockDeploymentMetadata[Math.floor(Math.random() * mockDeploymentMetadata.length)];
   callback(null, { Metadata: metaObject });
 });
 
@@ -80,8 +81,8 @@ test('Prune Function Mock', async () => {
     ResourceProperties: {
       SourceBucketName: 'test-bucket',
       MetaLookupKey: 'x-amz-meta-x-amzn-meta-deployed',
-      DeploymentsToKeep: 3,
-      RemoveUnmarked: false,
+      DeploymentsToKeep: 2,
+      RemoveUnmarked: true,
     },
   };
 
