@@ -9,11 +9,23 @@ import { Construct, Duration, CustomResource } from '@aws-cdk/core';
 const handlerCodeBundle = path.join(__dirname, '..', '.build');
 const handlerSourceDirectory = path.join(__dirname, '..', 'lambda', 'src');
 
-export interface SPAPrunerProps {
+export interface BucketDeploymentExpiratorProps {
   /**
    * The S3 bucket to sync the contents of the zip file to.
    */
   readonly sourceBucket: IBucket;
+
+  /**
+   * The number of old deployments to keep
+   * @default 3
+   */
+  readonly deploymentsToKeep?: number;
+
+  /**
+   * Whether or not to remove items without a metadata key
+   * @default false
+   */
+  readonly removeUnmarked?: boolean;
 
   /**
    * Execution role associated with this function
@@ -29,8 +41,8 @@ export interface SPAPrunerProps {
   readonly metaLookupKey?: string;
 }
 
-export class SPAPruner extends Construct {
-  constructor(scope: Construct, id: string, props: SPAPrunerProps) {
+export class BucketDeploymentExpirator extends Construct {
+  constructor(scope: Construct, id: string, props: BucketDeploymentExpiratorProps) {
     super(scope, id);
 
     const assetHash = calcSourceHash(handlerSourceDirectory);
@@ -57,6 +69,8 @@ export class SPAPruner extends Construct {
       properties: {
         SourceBucketName: props.sourceBucket.bucketName,
         MetaLookupKey: props.metaLookupKey,
+        DeploymentsToKeep: props.deploymentsToKeep ?? 3,
+        RemoveUnmarked: props.removeUnmarked ?? false
       },
     });
   }

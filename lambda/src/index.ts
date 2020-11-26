@@ -29,6 +29,8 @@ export async function handler(event, context) {
 
     const sourceBucketName = props.SourceBucketName;
     metaLookupKey = props.MetaLookupKey ?? metaLookupKey;
+    const deploymentsToKeep = props.DeploymentsToKeep;
+    const removeUnmarked = props.RemoveUnmarked;
 
     const deployments = {};
 
@@ -37,7 +39,6 @@ export async function handler(event, context) {
     }
 
     const { IsTruncated, Contents } = await s3.listObjectsV2(listObjectsParams).promise();
-    // console.log(Contents);
 
     for (const file of Contents) {
         const headParams = {
@@ -45,7 +46,6 @@ export async function handler(event, context) {
             Key: file.Key
         }
 
-        // console.log(file.Key);
         const { Metadata } = await s3.headObject(headParams).promise();
         const deployed = Metadata[metaLookupKey];
         if (!deployed) continue;
