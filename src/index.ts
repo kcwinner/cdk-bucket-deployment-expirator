@@ -52,7 +52,7 @@ export class BucketDeploymentExpirator extends Construct {
       code: Code.fromAsset(handlerCodeBundle, { assetHash }),
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
-      lambdaPurpose: 'Custom::CDKSPAPruner',
+      lambdaPurpose: 'Custom::CDKBucketDeploymentExpirator',
       timeout: Duration.minutes(15),
       role: props.role,
     });
@@ -65,7 +65,7 @@ export class BucketDeploymentExpirator extends Construct {
 
     new CustomResource(this, 'CustomResource', {
       serviceToken: handler.functionArn,
-      resourceType: 'Custom::CDKSPAPruner',
+      resourceType: 'Custom::CDKBucketDeploymentExpirator',
       properties: {
         SourceBucketName: props.sourceBucket.bucketName,
         MetaLookupKey: props.metaLookupKey,

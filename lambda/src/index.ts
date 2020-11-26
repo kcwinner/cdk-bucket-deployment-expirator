@@ -1,12 +1,13 @@
 const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
 
 const CFN_SUCCESS = 'SUCCESS';
 const CFN_FAILED = 'FAILED';
 
 let metaLookupKey = 'x-amz-meta-x-amzn-meta-deployed';
 
-export async function handler(event, context) {
+export async function handler(event: any, context: any) {
+  const s3 = new AWS.S3(); // Needs to be initialized here to use aws-sdk-mock
+
   console.info(event);
 
   const cfnError = async (message: string = '') => {
@@ -32,13 +33,20 @@ export async function handler(event, context) {
     const deploymentsToKeep = props.DeploymentsToKeep;
     const removeUnmarked = props.RemoveUnmarked;
 
-    const deployments = {};
+    // Check if it's a delete. If so, do nothing
+    if (requestType === 'Delete') {
+      await cfnSend({ event, context, responseStatus: CFN_SUCCESS, physicalResourceId: physicalId });
+      return;
+    }
+
+    const deployments: { [key: string]: string[] } = {};
 
     const listObjectsParams = {
         Bucket: sourceBucketName
     }
 
-    const { IsTruncated, Contents } = await s3.listObjectsV2(listObjectsParams).promise();
+    // TODO: Check for IsTruncated
+    const { Contents } = await s3.listObjectsV2(listObjectsParams).promise();
 
     for (const file of Contents) {
         const headParams = {
@@ -55,14 +63,21 @@ export async function handler(event, context) {
         deployments[deployed].push(file.Key);
     }
 
-    console.log(deployments);
+    console.info('Deployments:', deployments);
 
-    cfnSend({
-      event,
-      context,
-      responseStatus: CFN_SUCCESS,
-      physicalResourceId: physicalId
-    })
+    const deploymentTimestamps = Object.keys(deployments).filter(key => key !== 'unmarked').sort().reverse();
+    if (removeUnmarked) deploymentTimestamps.push('unmarked');
+    console.info('Deployment Timestamps:', deploymentTimestamps);
+
+    // Slice starting at the index to remove since we reverse sorted
+    const deploymentsToRemove = deploymentTimestamps.slice(deploymentsToKeep);
+    for (const deployment of deploymentsToRemove) {
+        const filesToRemove = deployments[deployment];
+        console.info('Removing:', filesToRemove);
+    }
+
+
+    await cfnSend({ event, context, responseStatus: CFN_SUCCESS, physicalResourceId: physicalId });
   } catch (err) {
     cfnError(`invalid request. Missing key ${err}`);
   }
@@ -101,6 +116,7 @@ async function cfnSend(options: CfnSendOptions) {
     'content-length': body.length.toString()
   }
 
+  console.log(headers);
 
 }
 
