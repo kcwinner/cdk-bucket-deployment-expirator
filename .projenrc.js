@@ -24,7 +24,9 @@ const project = new AwsCdkConstructLibrary({
 
   gitignore: [
     '.build'
-  ]
+  ],
+
+  releaseWorkflow: false // Disable this for now so we don't accidentally deploy
 });
 
 project.addFields({
