@@ -35,7 +35,7 @@ jspm_packages/
 .yarn-integrity
 # parcel-bundler cache (https://parceljs.org/)
 .cache
-dist
+.build
 # jest-junit artifacts
 /test-reports/
 junit.xml

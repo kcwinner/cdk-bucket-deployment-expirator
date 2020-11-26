@@ -4,9 +4,9 @@ import * as path from 'path';
 import { IRole } from '@aws-cdk/aws-iam';
 import { Code, Runtime, SingletonFunction } from '@aws-cdk/aws-lambda';
 import { IBucket } from '@aws-cdk/aws-s3';
-import { Construct, Duration, Token, CustomResource } from '@aws-cdk/core';
+import { Construct, Duration, CustomResource } from '@aws-cdk/core';
 
-const handlerCodeBundle = path.join(__dirname, '..', 'dist');
+const handlerCodeBundle = path.join(__dirname, '..', '.build');
 const handlerSourceDirectory = path.join(__dirname, '..', 'lambda', 'src');
 
 export interface SPAPrunerProps {
@@ -56,7 +56,7 @@ export class SPAPruner extends Construct {
       resourceType: 'Custom::CDKSPAPruner',
       properties: {
         SourceBucketName: props.sourceBucket.bucketName,
-        MetaLookupKey: props.metaLookupKey
+        MetaLookupKey: props.metaLookupKey,
       },
     });
   }

@@ -23,8 +23,8 @@
     "eslint": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test",
     "compat": "npx jsii-diff npm:$(node -p \"require('./package.json').name\") -k --ignore-file .compatignore || (echo \"\nUNEXPECTED BREAKING CHANGES: add keys such as 'removed:constructs.Node.of' to .compatignore to skip.\n\" && exit 1)",
     "docgen": "jsii-docgen",
-    "clean": "rm -rf dist",
-    "build:lambda": "yarn run clean && esbuild lambda/src/index.ts --bundle --outdir=dist --target=node12 --platform=node"
+    "clean": "rm -rf .build",
+    "build:lambda": "yarn run clean && esbuild lambda/src/index.ts --bundle --outdir=.build/ --target=node12 --platform=node"
   },
   "author": {
     "name": "Ken Winner",
@@ -148,7 +148,7 @@
       "category": 2
     }
   },
-  "version": "0.0.0",
+  "version": "1.0.0",
   "jest": {
     "clearMocks": true,
     "collectCoverage": true,

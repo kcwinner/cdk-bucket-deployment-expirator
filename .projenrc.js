@@ -23,7 +23,7 @@ const project = new AwsCdkConstructLibrary({
   ],
 
   gitignore: [
-    'dist'
+    '.build'
   ]
 });
 
@@ -32,8 +32,8 @@ project.addFields({
 })
 
 project.addScripts({
-  'clean': 'rm -rf dist',
-  'build:lambda': 'yarn run clean && esbuild lambda/src/index.ts --bundle --outdir=dist --target=node12 --platform=node',
+  'clean': 'rm -rf .build',
+  'build:lambda': 'yarn run clean && esbuild lambda/src/index.ts --bundle --outdir=.build/ --target=node12 --platform=node',
   'test': 'yarn run clean && yarn run build:lambda && jest --passWithNoTests --updateSnapshot && yarn run eslint'
 })
 
