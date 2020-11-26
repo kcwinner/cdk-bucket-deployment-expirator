@@ -9,6 +9,12 @@ I had been using `prune: true` to clean up the bucket and this was causing all p
 ## Must Be Used With CDK Bucket Deployment
 
 ```typescript
+import { Bucket } from '@aws-cdk/aws-s3';
+import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
+
+...
+...
+
 const sourceBucket = new Bucket(this, 'SourceBucket');
 const now = new Date().getTime();
 
