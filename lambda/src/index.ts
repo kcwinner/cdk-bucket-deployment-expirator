@@ -76,12 +76,21 @@ export async function handler(event: any, context: any) {
     const deploymentsToRemove = deploymentTimestamps.slice(deploymentsToKeep);
     for (const deployment of deploymentsToRemove) {
       const filesToRemove = deployments[deployment];
-      console.info('Removing:', filesToRemove);
+      console.info(`Removing ${deployment}:`, filesToRemove);
+
+      const deleteParams = {
+        Bucket: sourceBucketName,
+        Delete: {
+          Objects: filesToRemove.map(file => { Key: file })
+        }
+      }
+
+      console.log('DELETE PARAMS:', deleteParams);
     }
 
     await cfnSend({ event, context, responseStatus: CFN_SUCCESS, physicalResourceId: physicalId });
   } catch (err) {
-    cfnError(`invalid request. Missing key ${err}`);
+    await cfnError(`invalid request. Missing key ${err}`);
   }
 }
 
@@ -122,7 +131,7 @@ async function cfnSend(options: CfnSendOptions) {
 
   try {
     const response = await putAsync(responseUrl, putOptions, body);
-    console.info("| status code: " + response)
+    console.info("| status code: " + response.statusCode);
   } catch (err) {
     console.error('| unable to send response to CloudFormation');
     console.error(err);
@@ -130,24 +139,34 @@ async function cfnSend(options: CfnSendOptions) {
 
 }
 
-async function putAsync(url: string, options: https.RequestOptions, body: string): Promise<string> {
+async function putAsync(url: string, options: https.RequestOptions, body: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const request = https.request(url, options, (resp) => {
-      let data = '';
-  
+      let response = {
+        statusCode: -1,
+        statusMessage: '',
+        data: ''
+      };
+
       resp.on('data', (chunk) => {
-        data += chunk;
+        response.data += chunk;
       });
-  
+
       resp.on('end', () => {
-        resolve(data);
+        response.statusCode = resp.statusCode ?? 500;
+        response.statusMessage = resp.statusMessage ?? '';
+        resolve(response);
       });
 
       resp.on('error', (err) => {
         reject(err);
       })
     });
-  
+
+    request.on('error', (err) => {
+      reject(err);
+    })
+
     request.write(body);
     request.end();
   })

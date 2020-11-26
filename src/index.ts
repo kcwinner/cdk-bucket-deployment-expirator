@@ -4,12 +4,18 @@ import * as path from 'path';
 import { IRole } from '@aws-cdk/aws-iam';
 import { Code, Runtime, SingletonFunction } from '@aws-cdk/aws-lambda';
 import { IBucket } from '@aws-cdk/aws-s3';
+import { BucketDeployment } from '@aws-cdk/aws-s3-deployment';
 import { Construct, Duration, CustomResource } from '@aws-cdk/core';
 
 const handlerCodeBundle = path.join(__dirname, '..', '.build');
 const handlerSourceDirectory = path.join(__dirname, '..', 'lambda', 'src');
 
 export interface BucketDeploymentExpiratorProps {
+  /**
+   * The CDK Bucket Deployment Construct.
+   */
+  readonly bucketDeployment: BucketDeployment;
+
   /**
    * The S3 bucket to sync the contents of the zip file to.
    */
@@ -63,7 +69,7 @@ export class BucketDeploymentExpirator extends Construct {
     props.sourceBucket.grantRead(handler);
     props.sourceBucket.grantDelete(handler);
 
-    new CustomResource(this, 'CustomResource', {
+    const customResource = new CustomResource(this, 'CustomResource', {
       serviceToken: handler.functionArn,
       resourceType: 'Custom::CDKBucketDeploymentExpirator',
       properties: {
@@ -71,8 +77,12 @@ export class BucketDeploymentExpirator extends Construct {
         MetaLookupKey: props.metaLookupKey ?? 'x-amz-meta-x-amzn-meta-deployed',
         DeploymentsToKeep: props.deploymentsToKeep ?? 3,
         RemoveUnmarked: props.removeUnmarked ?? false,
+        Now: new Date().getTime(), // Need to find a better way to force the resource to update
       },
     });
+
+    // Add the bucket deployment as a dependency so we deploy after
+    customResource.node.addDependency(props.bucketDeployment);
   }
 
   private renderSingletonUuid() {

@@ -18,7 +18,7 @@ import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 const sourceBucket = new Bucket(this, 'SourceBucket');
 const now = new Date().getTime();
 
-new BucketDeployment(this, 'deploy-pwa-exclude-index', {
+const bucketDeployment = new BucketDeployment(this, 'deploy-pwa-exclude-index', {
   sources: [Source.asset('path/to/assets')],
   destinationBucket: pwaBucket,
   metadata: { deployed: now.toString() }, // This actually turns into x-amz-meta-x-amzn-meta-deployed right now
@@ -26,6 +26,7 @@ new BucketDeployment(this, 'deploy-pwa-exclude-index', {
 });
 
 new BucketDeploymentExpirator(this, 'expirator', {
+  bucketDeployment: bucketDeployment, // need this to add cfn depends on
   sourceBucket: sourceBucket
 })
 ```

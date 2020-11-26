@@ -1,5 +1,6 @@
 import '@aws-cdk/assert/jest';
 import { Bucket } from '@aws-cdk/aws-s3';
+import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Stack } from '@aws-cdk/core';
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
@@ -51,9 +52,16 @@ test('Stack Resources', () => {
   // GIVEN
   const stack = new Stack();
   const bucket = new Bucket(stack, 'test-bucket');
+  const bucketDeployment = new BucketDeployment(stack, 'test-deploy', {
+    sources: [Source.asset('.build')], // We don't really care here
+    destinationBucket: bucket,
+    metadata: { deployed: new Date().getTime().toString() },
+    prune: false,
+  });
 
   // WHEN
   new BucketDeploymentExpirator(stack, 'test-pruner-construct', {
+    bucketDeployment: bucketDeployment,
     sourceBucket: bucket,
   });
 
