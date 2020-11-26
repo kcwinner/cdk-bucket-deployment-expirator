@@ -1,7 +1,7 @@
 import '@aws-cdk/assert/jest';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { Stack } from '@aws-cdk/core';
-import { SPAPruner } from '../src';
+import { BucketDeploymentExpirator } from '../src';
 
 test('Stack Resources', () => {
   // GIVEN
@@ -9,7 +9,7 @@ test('Stack Resources', () => {
   const bucket = new Bucket(stack, 'test-bucket');
 
   // WHEN
-  new SPAPruner(stack, 'test-pruner-construct', {
+  new BucketDeploymentExpirator(stack, 'test-pruner-construct', {
     sourceBucket: bucket,
   });
 

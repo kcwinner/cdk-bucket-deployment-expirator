@@ -3,9 +3,8 @@ const { AwsCdkConstructLibrary } = require('projen');
 const project = new AwsCdkConstructLibrary({
   authorAddress: "kcswinner@gmail.com",
   authorName: "Ken Winner",
-  name: "cdk-spa-pruner",
-  repository: "https://github.com/kcwinner/cdk-spa-pruner.git",
-  compileBeforeTest: true, // Since we need the .build directory for the test to pass
+  name: "cdk-bucket-deployment-expirator",
+  repository: "https://github.com/kcwinner/cdk-bucket-deployment-expirator.git",
   cdkVersion: "1.75.0",
   cdkDependencies: [
     '@aws-cdk/aws-iam',

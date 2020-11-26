@@ -70,7 +70,7 @@ export class BucketDeploymentExpirator extends Construct {
         SourceBucketName: props.sourceBucket.bucketName,
         MetaLookupKey: props.metaLookupKey,
         DeploymentsToKeep: props.deploymentsToKeep ?? 3,
-        RemoveUnmarked: props.removeUnmarked ?? false
+        RemoveUnmarked: props.removeUnmarked ?? false,
       },
     });
   }
