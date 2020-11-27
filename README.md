@@ -39,6 +39,12 @@ new BucketDeploymentExpirator(this, 'expirator', {
 })
 ```
 
+## Versioning
+
+I will *attempt* to align the major and minor version of this package with [AWS CDK], but always check the release descriptions for compatibility.
+
+This currently supports [![GitHub package.json dependency version (prod)](https://img.shields.io/github/package-json/dependency-version/kcwinner/cdk-bucket-deployment-expirator/@aws-cdk/core)](https://github.com/aws/aws-cdk)
+
 ## References
 
 * [CDK Bucket Deployment](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-s3-deployment-readme.html)
