@@ -1,6 +1,6 @@
 # CDK Bucket Deployment Expirator
 
-![build](https://github.com/kcwinner/cdk-bucket-deployment-expirator/workflows/build/badge.svg)
+![build](https://github.com/kcwinner/cdk-bucket-deployment-expirator/workflows/Build/badge.svg)
 [![codecov](https://codecov.io/gh/kcwinner/cdk-bucket-deployment-expirator/branch/main/graph/badge.svg)](https://codecov.io/gh/kcwinner/cdk-bucket-deployment-expirator)
 [![dependencies Status](https://david-dm.org/kcwinner/cdk-bucket-deployment-expirator/status.svg)](https://david-dm.org/kcwinner/cdk-bucket-deployment-expirator)
 [![npm](https://img.shields.io/npm/dt/cdk-bucket-deployment-expirator)](https://www.npmjs.com/package/cdk-bucket-deployment-expirator)
