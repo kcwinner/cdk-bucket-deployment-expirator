@@ -12,12 +12,12 @@ const handlerSourceDirectory = path.join(__dirname, '..', 'lambda', 'src');
 
 export interface BucketDeploymentExpiratorProps {
   /**
-   * The CDK Bucket Deployment Construct.
+   * The CDK Bucket Deployment Construct. Required to addDependency
    */
   readonly bucketDeployment: BucketDeployment;
 
   /**
-   * The S3 bucket to sync the contents of the zip file to.
+   * The S3 bucket to remove old deployments from
    */
   readonly sourceBucket: IBucket;
 
@@ -77,7 +77,7 @@ export class BucketDeploymentExpirator extends Construct {
         MetaLookupKey: props.metaLookupKey ?? 'x-amz-meta-x-amzn-meta-deployed',
         DeploymentsToKeep: props.deploymentsToKeep ?? 3,
         RemoveUnmarked: props.removeUnmarked ?? false,
-        Now: new Date().getTime(), // Need to find a better way to force the resource to update
+        Timestamp: new Date().getTime(), // Is there a better way to force the resource to update?
       },
     });
 

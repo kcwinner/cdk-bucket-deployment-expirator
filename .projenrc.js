@@ -28,6 +28,11 @@ const project = new AwsCdkConstructLibrary({
     '.build'
   ],
 
+  python: {
+    distName: "cdk-bucket-deployment-expirator",
+    module: "cdk_bucket_deployment_expirator"
+  },
+
   releaseWorkflow: false // Disable this for now so we don't accidentally deploy
 });
 
