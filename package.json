@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "^4.3.0",
     "aws-sdk": "^2.799.0",
     "aws-sdk-mock": "^5.1.0",
-    "esbuild": "^0.8.15",
+    "esbuild": "^0.8.16",
     "eslint": "^7.14.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-import-resolver-typescript": "^2.3.0",
@@ -48,7 +48,7 @@
     "jest-junit": "^12",
     "jsii": "^1.15.0",
     "jsii-diff": "^1.15.0",
-    "jsii-docgen": "^1.4.98",
+    "jsii-docgen": "^1.4.101",
     "jsii-pacmak": "^1.15.0",
     "jsii-release": "^0.2.3",
     "json-schema": "^0.2.5",
@@ -187,7 +187,12 @@
   "stability": "stable",
   "jsii": {
     "outdir": "dist",
-    "targets": {},
+    "targets": {
+      "python": {
+        "distName": "cdk-bucket-deployment-expirator",
+        "module": "cdk_bucket_deployment_expirator"
+      }
+    },
     "tsc": {
       "outDir": "lib",
       "rootDir": "src"
