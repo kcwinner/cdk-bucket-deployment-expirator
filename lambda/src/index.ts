@@ -29,7 +29,7 @@ export async function handler(event: any, context: any) {
     const sourceBucketName = props.SourceBucketName;
     const metaLookupKey = props.MetaLookupKey;
     const deploymentsToKeep = props.DeploymentsToKeep;
-    const removeUnmarked = props.RemoveUnmarked;
+    const removeUnmarked = props.RemoveUnmarked === 'true';
 
     // Check if it's a delete. If so, do nothing
     if (requestType === 'Delete') {
@@ -46,7 +46,6 @@ export async function handler(event: any, context: any) {
     // TODO: Check for IsTruncated
     const listObjectsResult = await s3.listObjectsV2(listObjectsParams).promise();
     const contents = listObjectsResult.Contents ?? [];
-
     for (const file of contents) {
       if (!file.Key) continue;
 
@@ -81,11 +80,11 @@ export async function handler(event: any, context: any) {
       const deleteParams = {
         Bucket: sourceBucketName,
         Delete: {
-          Objects: filesToRemove.map(file => { Key: file })
+          Objects: filesToRemove.map(file => { return { Key: file } })
         }
       }
 
-      console.log('DELETE PARAMS:', deleteParams);
+      await s3.deleteObjects(deleteParams).promise();
     }
 
     await cfnSend({ event, context, responseStatus: CFN_SUCCESS, physicalResourceId: physicalId });
@@ -130,8 +129,9 @@ async function cfnSend(options: CfnSendOptions) {
   }
 
   try {
-    const response = await putAsync(responseUrl, putOptions, body);
-    console.info("| status code: " + response.statusCode);
+    const response = await requestAsync(responseUrl, putOptions, body);
+    console.info('| status code:', response.statusCode);
+    console.info('| status message:', response.statusMessage);
   } catch (err) {
     console.error('| unable to send response to CloudFormation');
     console.error(err);
@@ -139,7 +139,13 @@ async function cfnSend(options: CfnSendOptions) {
 
 }
 
-async function putAsync(url: string, options: https.RequestOptions, body: string): Promise<any> {
+/**
+ * Makes an asynchronous https request to the url passed in
+ * @param url Cloudformation response url to send status to
+ * @param options https options for the put request
+ * @param body Stingified data to be sent
+ */
+async function requestAsync(url: string, options: https.RequestOptions, body: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const request = https.request(url, options, (resp) => {
       let response = {

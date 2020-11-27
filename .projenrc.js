@@ -20,7 +20,8 @@ const project = new AwsCdkConstructLibrary({
   devDeps: [
     'aws-sdk',
     'aws-sdk-mock',
-    'esbuild'
+    'esbuild',
+    'nock'
   ],
 
   gitignore: [
