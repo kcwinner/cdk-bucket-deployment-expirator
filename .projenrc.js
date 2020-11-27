@@ -5,6 +5,7 @@ const project = new AwsCdkConstructLibrary({
   authorName: "Ken Winner",
   name: "cdk-bucket-deployment-expirator",
   repository: "https://github.com/kcwinner/cdk-bucket-deployment-expirator.git",
+  defaultReleaseBranch: 'main',
   codeCov: true,
   cdkVersion: "1.74.0",
   cdkDependencies: [
@@ -33,8 +34,6 @@ const project = new AwsCdkConstructLibrary({
     distName: "cdk-bucket-deployment-expirator",
     module: "cdk_bucket_deployment_expirator"
   },
-
-  releaseWorkflow: false // Disable this for now so we don't accidentally deploy
 });
 
 project.addFields({
