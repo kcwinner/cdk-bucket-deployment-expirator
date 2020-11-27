@@ -5,6 +5,7 @@ const project = new AwsCdkConstructLibrary({
   authorName: "Ken Winner",
   name: "cdk-bucket-deployment-expirator",
   repository: "https://github.com/kcwinner/cdk-bucket-deployment-expirator.git",
+  codeCov: true,
   cdkVersion: "1.74.0",
   cdkDependencies: [
     '@aws-cdk/aws-iam',
