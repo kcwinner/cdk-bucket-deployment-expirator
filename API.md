@@ -35,7 +35,7 @@ new BucketDeploymentExpirator(scope: Construct, id: string, props: BucketDeploym
 * **id** (<code>string</code>)  *No description*
 * **props** (<code>[BucketDeploymentExpiratorProps](#cdk-bucket-deployment-expirator-bucketdeploymentexpiratorprops)</code>)  *No description*
   * **bucketDeployment** (<code>[BucketDeployment](#aws-cdk-aws-s3-deployment-bucketdeployment)</code>)  The CDK Bucket Deployment Construct. 
-  * **sourceBucket** (<code>[IBucket](#aws-cdk-aws-s3-ibucket)</code>)  The S3 bucket to sync the contents of the zip file to. 
+  * **sourceBucket** (<code>[IBucket](#aws-cdk-aws-s3-ibucket)</code>)  The S3 bucket to remove old deployments from. 
   * **deploymentsToKeep** (<code>number</code>)  The number of old deployments to keep. __*Default*__: 3
   * **metaLookupKey** (<code>string</code>)  The S3 metadata key to look for as a timestamp. __*Default*__: "x-amz-meta-x-amzn-meta-deployed"
   * **removeUnmarked** (<code>boolean</code>)  Whether or not to remove items without a metadata key. __*Default*__: false
@@ -54,7 +54,7 @@ new BucketDeploymentExpirator(scope: Construct, id: string, props: BucketDeploym
 Name | Type | Description 
 -----|------|-------------
 **bucketDeployment** | <code>[BucketDeployment](#aws-cdk-aws-s3-deployment-bucketdeployment)</code> | The CDK Bucket Deployment Construct.
-**sourceBucket** | <code>[IBucket](#aws-cdk-aws-s3-ibucket)</code> | The S3 bucket to sync the contents of the zip file to.
+**sourceBucket** | <code>[IBucket](#aws-cdk-aws-s3-ibucket)</code> | The S3 bucket to remove old deployments from.
 **deploymentsToKeep**? | <code>number</code> | The number of old deployments to keep.<br/>__*Default*__: 3
 **metaLookupKey**? | <code>string</code> | The S3 metadata key to look for as a timestamp.<br/>__*Default*__: "x-amz-meta-x-amzn-meta-deployed"
 **removeUnmarked**? | <code>boolean</code> | Whether or not to remove items without a metadata key.<br/>__*Default*__: false

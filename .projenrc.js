@@ -42,6 +42,7 @@ project.addFields({
 })
 
 project.addScripts({
+  'bump': 'yarn run --silent no-changes || standard-version --prerelease rc',
   'clean': 'rm -rf .build',
   'build:lambda': 'yarn run clean && esbuild lambda/src/index.ts --bundle --outdir=.build/ --target=node12 --platform=node',
   'test': 'yarn run clean && yarn run build:lambda && jest --passWithNoTests --updateSnapshot && yarn run eslint'
