@@ -16,7 +16,7 @@ const project = new AwsCdkConstructLibrary({
       { dependencyName: '@aws-cdk*' },
     ],
   },
-  
+
   cdkVersion: '1.87.1',
   cdkDependencies: [
     '@aws-cdk/aws-iam',
