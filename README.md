@@ -29,7 +29,7 @@ const now = new Date().getTime();
 const bucketDeployment = new BucketDeployment(this, 'deploy-spa', {
   sources: [Source.asset('path/to/assets')],
   destinationBucket: bucket,
-  metadata: { deployed: now.toString() }, // This actually turns into x-amz-meta-x-amzn-meta-deployed right now
+  metadata: { deployed: now.toString() }, // This turns into x-amz-meta-deployed as of 1.87.0
   prune: false
 });
 

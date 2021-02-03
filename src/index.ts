@@ -9,6 +9,7 @@ import { Construct, Duration, CustomResource } from '@aws-cdk/core';
 
 const handlerCodeBundle = path.join(__dirname, '..', '.build');
 const handlerSourceDirectory = path.join(__dirname, '..', 'lambda', 'src');
+const defaultMetaKey = 'x-amz-meta-deployed';
 
 export interface BucketDeploymentExpiratorProps {
   /**
@@ -42,7 +43,7 @@ export interface BucketDeploymentExpiratorProps {
 
   /**
    * The S3 metadata key to look for as a timestamp
-   * @default "x-amz-meta-x-amzn-meta-deployed"
+   * @default "x-amz-meta-deployed"
    */
   readonly metaLookupKey?: string;
 }
@@ -74,7 +75,7 @@ export class BucketDeploymentExpirator extends Construct {
       resourceType: 'Custom::CDKBucketDeploymentExpirator',
       properties: {
         SourceBucketName: props.sourceBucket.bucketName,
-        MetaLookupKey: props.metaLookupKey ?? 'x-amz-meta-x-amzn-meta-deployed',
+        MetaLookupKey: props.metaLookupKey ?? defaultMetaKey,
         DeploymentsToKeep: props.deploymentsToKeep ?? 3,
         RemoveUnmarked: props.removeUnmarked ?? false,
         Timestamp: new Date().getTime(), // Is there a better way to force the resource to update?

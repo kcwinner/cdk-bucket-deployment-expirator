@@ -9,8 +9,8 @@ import { handler } from '../lambda/src';
 import { BucketDeploymentExpirator } from '../src';
 
 const mockDeploymentMetadata = [
-  { 'x-amz-meta-x-amzn-meta-deployed': '1606366699507' },
-  { 'x-amz-meta-x-amzn-meta-deployed': '1606366252586' },
+  { 'x-amz-meta-deployed': '1606366699507' },
+  { 'x-amz-meta-deployed': '1606366252586' },
   {},
 ];
 
@@ -105,7 +105,7 @@ test('Prune Function Mock', async () => {
     ResourceType: 'Custom::CDKBucketDeploymentExpirator',
     ResourceProperties: {
       SourceBucketName: 'test-bucket',
-      MetaLookupKey: 'x-amz-meta-x-amzn-meta-deployed',
+      MetaLookupKey: 'x-amz-meta-deployed',
       DeploymentsToKeep: 1,
       RemoveUnmarked: 'false',
     },
