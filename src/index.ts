@@ -9,7 +9,7 @@ import { Construct, Duration, CustomResource } from '@aws-cdk/core';
 
 const handlerCodeBundle = path.join(__dirname, '..', '.build');
 const handlerSourceDirectory = path.join(__dirname, '..', 'lambda', 'src');
-const defaultMetaKey = 'x-amz-meta-deployed';
+const defaultMetaKey = 'deployed';
 
 export interface BucketDeploymentExpiratorProps {
   /**
@@ -43,7 +43,7 @@ export interface BucketDeploymentExpiratorProps {
 
   /**
    * The S3 metadata key to look for as a timestamp
-   * @default "x-amz-meta-deployed"
+   * @default "deployed"
    */
   readonly metaLookupKey?: string;
 }
